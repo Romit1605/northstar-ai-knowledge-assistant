@@ -1,0 +1,816 @@
+openapi: 3.1.0
+info:
+  title: Northstar AI Knowledge Assistant API
+  description: An API that answers questions using fictional Northstar company documents
+  version: 1.0.0
+paths:
+  /api/health:
+    get:
+      summary: Health Check
+      description: Return the health status of the API.
+      operationId: health_check_api_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/documents:
+    get:
+      summary: List Documents
+      description: Return filenames of all Markdown documents in the knowledge base.
+      operationId: list_documents_api_documents_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+  /api/knowledge-base:
+    get:
+      summary: Get Knowledge Base
+      description: Return metadata for every loaded document.
+      operationId: get_knowledge_base_api_knowledge_base_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeBaseResponse'
+  /api/chunks/preview:
+    get:
+      summary: Preview Chunks
+      description: Return the first 5 chunks (useful for debugging).
+      operationId: preview_chunks_api_chunks_preview_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunksResponse'
+  /api/chunks/{document_name}:
+    get:
+      summary: Get Chunks By Document
+      description: 'Return all chunks for a specific document.
+
+
+        Raises 404 if the document name is not found.'
+      operationId: get_chunks_by_document_api_chunks__document_name__get
+      parameters:
+      - name: document_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Document Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunksResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks:
+    get:
+      summary: Get All Chunks
+      description: Return every chunk across all documents.
+      operationId: get_all_chunks_api_chunks_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunksResponse'
+  /api/vector-store/index:
+    post:
+      summary: Index Documents
+      description: 'Embed all knowledge-base chunks and store them in ChromaDB.
+
+
+        Safe to call multiple times — duplicates are skipped.'
+      operationId: index_documents_api_vector_store_index_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexResponse'
+  /api/vector-store/rebuild:
+    post:
+      summary: Rebuild Index
+      description: Delete the existing collection and re-index from scratch.
+      operationId: rebuild_index_api_vector_store_rebuild_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexResponse'
+  /api/vector-store/status:
+    get:
+      summary: Vector Store Status
+      description: Return information about the vector store.
+      operationId: vector_store_status_api_vector_store_status_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorStoreStatus'
+  /api/search:
+    post:
+      summary: Semantic Search
+      description: 'Perform semantic search over the indexed knowledge base.
+
+
+        Expects a JSON body with ''query'' (required) and ''top_k'' (optional, 1-10).'
+      operationId: semantic_search_api_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/retrieve:
+    post:
+      summary: Retrieve Context
+      description: 'Run the full retrieval pipeline for a question.
+
+
+        Steps: semantic search → relevance filter → deduplication
+
+        → source selection → context construction.'
+      operationId: retrieve_context_api_retrieve_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrievalRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievalResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/ask:
+    post:
+      summary: Ask Question
+      description: 'Answer a question using retrieval-augmented generation.
+
+
+        Flow: question → RetrievalService → sufficient-context check
+
+        → LLMService (Gemini) → grounded answer with source citations.'
+      operationId: ask_question_api_ask_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AskResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/auth/register:
+    post:
+      tags:
+      - auth
+      summary: Register
+      operationId: register_api_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_api_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/auth/me:
+    get:
+      tags:
+      - auth
+      summary: Read Users Me
+      operationId: read_users_me_api_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /:
+    get:
+      summary: Root
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RootResponse'
+components:
+  schemas:
+    AnswerSource:
+      properties:
+        source_number:
+          type: integer
+          title: Source Number
+        document_name:
+          type: string
+          title: Document Name
+        title:
+          type: string
+          title: Title
+        excerpt:
+          type: string
+          title: Excerpt
+        relevance_score:
+          type: number
+          title: Relevance Score
+      type: object
+      required:
+      - source_number
+      - document_name
+      - title
+      - excerpt
+      - relevance_score
+      title: AnswerSource
+      description: A source cited in an LLM-generated answer.
+    AskRequest:
+      properties:
+        question:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Question
+        top_k:
+          type: integer
+          maximum: 8.0
+          minimum: 1.0
+          title: Top K
+          default: 4
+        minimum_relevance:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Minimum Relevance
+          default: 0.55
+      type: object
+      required:
+      - question
+      title: AskRequest
+      description: Request body for POST /api/ask.
+    AskResponse:
+      properties:
+        question:
+          type: string
+          title: Question
+        answer:
+          type: string
+          title: Answer
+        sources:
+          items:
+            $ref: '#/components/schemas/AnswerSource'
+          type: array
+          title: Sources
+        sufficient_context:
+          type: boolean
+          title: Sufficient Context
+        model:
+          type: string
+          title: Model
+        response_time_ms:
+          type: integer
+          title: Response Time Ms
+      type: object
+      required:
+      - question
+      - answer
+      - sources
+      - sufficient_context
+      - model
+      - response_time_ms
+      title: AskResponse
+      description: Response model for POST /api/ask.
+    ChunksResponse:
+      properties:
+        count:
+          type: integer
+          title: Count
+        chunks:
+          items:
+            $ref: '#/components/schemas/DocumentChunk'
+          type: array
+          title: Chunks
+      type: object
+      required:
+      - count
+      - chunks
+      title: ChunksResponse
+      description: Response model for chunk list endpoints.
+    DocumentChunk:
+      properties:
+        chunk_id:
+          type: string
+          title: Chunk Id
+        document_name:
+          type: string
+          title: Document Name
+        title:
+          type: string
+          title: Title
+        chunk_index:
+          type: integer
+          title: Chunk Index
+        text:
+          type: string
+          title: Text
+        start_character:
+          type: integer
+          title: Start Character
+        end_character:
+          type: integer
+          title: End Character
+      type: object
+      required:
+      - chunk_id
+      - document_name
+      - title
+      - chunk_index
+      - text
+      - start_character
+      - end_character
+      title: DocumentChunk
+      description: A single text chunk produced by the DocumentChunker.
+    DocumentListResponse:
+      properties:
+        count:
+          type: integer
+          title: Count
+        documents:
+          items:
+            type: string
+          type: array
+          title: Documents
+      type: object
+      required:
+      - count
+      - documents
+      title: DocumentListResponse
+    DocumentMetadata:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        title:
+          type: string
+          title: Title
+        size:
+          type: integer
+          title: Size
+        number_of_lines:
+          type: integer
+          title: Number Of Lines
+      type: object
+      required:
+      - filename
+      - title
+      - size
+      - number_of_lines
+      title: DocumentMetadata
+      description: Metadata for a single knowledge-base document.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        service:
+          type: string
+          title: Service
+      type: object
+      required:
+      - status
+      - service
+      title: HealthResponse
+    IndexResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        documents_processed:
+          type: integer
+          title: Documents Processed
+        chunks_indexed:
+          type: integer
+          title: Chunks Indexed
+        collection:
+          type: string
+          title: Collection
+      type: object
+      required:
+      - status
+      - documents_processed
+      - chunks_indexed
+      - collection
+      title: IndexResponse
+      description: Response model for indexing endpoints.
+    KnowledgeBaseResponse:
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentMetadata'
+          type: array
+          title: Documents
+      type: object
+      required:
+      - documents
+      title: KnowledgeBaseResponse
+      description: Response model for GET /api/knowledge-base.
+    LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LoginRequest
+    RegisterRequest:
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          title: Full Name
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          minLength: 8
+          title: Password
+      type: object
+      required:
+      - full_name
+      - email
+      - password
+      title: RegisterRequest
+    RetrievalRequest:
+      properties:
+        question:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Question
+        top_k:
+          type: integer
+          maximum: 8.0
+          minimum: 1.0
+          title: Top K
+          default: 4
+        candidate_count:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Candidate Count
+          default: 8
+        minimum_relevance:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Minimum Relevance
+          default: 0.55
+      type: object
+      required:
+      - question
+      title: RetrievalRequest
+      description: Request body for POST /api/retrieve.
+    RetrievalResponse:
+      properties:
+        question:
+          type: string
+          title: Question
+        sufficient_context:
+          type: boolean
+          title: Sufficient Context
+        context:
+          type: string
+          title: Context
+        sources:
+          items:
+            $ref: '#/components/schemas/RetrievedSource'
+          type: array
+          title: Sources
+        retrieved_count:
+          type: integer
+          title: Retrieved Count
+        highest_relevance:
+          type: number
+          title: Highest Relevance
+      type: object
+      required:
+      - question
+      - sufficient_context
+      - context
+      - sources
+      - retrieved_count
+      - highest_relevance
+      title: RetrievalResponse
+      description: Response model for POST /api/retrieve.
+    RetrievedSource:
+      properties:
+        source_number:
+          type: integer
+          title: Source Number
+        chunk_id:
+          type: string
+          title: Chunk Id
+        document_name:
+          type: string
+          title: Document Name
+        title:
+          type: string
+          title: Title
+        text:
+          type: string
+          title: Text
+        relevance_score:
+          type: number
+          title: Relevance Score
+      type: object
+      required:
+      - source_number
+      - chunk_id
+      - document_name
+      - title
+      - text
+      - relevance_score
+      title: RetrievedSource
+      description: A single source returned by the retrieval pipeline.
+    RootResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: RootResponse
+    SearchRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+        top_k:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Top K
+          default: 3
+      type: object
+      required:
+      - query
+      title: SearchRequest
+      description: Request body for POST /api/search.
+    SearchResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+        count:
+          type: integer
+          title: Count
+        results:
+          items:
+            $ref: '#/components/schemas/SearchResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - query
+      - count
+      - results
+      title: SearchResponse
+      description: Response model for POST /api/search.
+    SearchResult:
+      properties:
+        chunk_id:
+          type: string
+          title: Chunk Id
+        document_name:
+          type: string
+          title: Document Name
+        title:
+          type: string
+          title: Title
+        text:
+          type: string
+          title: Text
+        relevance_score:
+          type: number
+          title: Relevance Score
+      type: object
+      required:
+      - chunk_id
+      - document_name
+      - title
+      - text
+      - relevance_score
+      title: SearchResult
+      description: A single search result with relevance score.
+    TokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+      - access_token
+      title: TokenResponse
+    UserResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        full_name:
+          type: string
+          title: Full Name
+        email:
+          type: string
+          title: Email
+        is_active:
+          type: boolean
+          title: Is Active
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - full_name
+      - email
+      - is_active
+      - created_at
+      title: UserResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VectorStoreStatus:
+      properties:
+        collection:
+          type: string
+          title: Collection
+        vector_db_path:
+          type: string
+          title: Vector Db Path
+        indexed_chunks:
+          type: integer
+          title: Indexed Chunks
+        embedding_model:
+          type: string
+          title: Embedding Model
+        ready:
+          type: boolean
+          title: Ready
+      type: object
+      required:
+      - collection
+      - vector_db_path
+      - indexed_chunks
+      - embedding_model
+      - ready
+      title: VectorStoreStatus
+      description: Response model for GET /api/vector-store/status.
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /api/auth/login
