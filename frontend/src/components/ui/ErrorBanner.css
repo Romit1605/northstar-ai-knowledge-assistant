@@ -1,0 +1,50 @@
+.error-banner {
+  background-color: rgba(239, 68, 68, 0.1); /* Red tint */
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 1.25rem;
+  border-radius: var(--radius, 12px);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(12px);
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-content strong {
+  color: #ef4444;
+}
+
+.error-explanation {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #f87171;
+  opacity: 0.9;
+}
+
+.btn-retry {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: all 0.2s;
+}
+
+.btn-retry:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fff;
+}
+
+.btn-retry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

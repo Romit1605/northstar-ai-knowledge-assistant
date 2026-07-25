@@ -1,0 +1,110 @@
+.knowledge-core-container {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  margin-left: -100px;
+  width: 200px;
+  height: 200px;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.2s ease-out;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.core-sphere {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #4338ca 0%, #1e1b4b 60%, #000 100%);
+  box-shadow: 
+    0 0 40px rgba(79, 70, 229, 0.4),
+    inset -10px -10px 40px rgba(0,0,0,0.8),
+    inset 10px 10px 30px rgba(129, 140, 248, 0.5);
+  animation: rotateSphere 20s linear infinite;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+.core-grid {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    linear-gradient(rgba(129, 140, 248, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(129, 140, 248, 0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+  transform: rotateX(60deg) rotateY(20deg);
+  opacity: 0.3;
+}
+
+@keyframes rotateSphere {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.core-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  margin-top: -150px;
+  margin-left: -150px;
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  animation: spinOrbit 15s linear infinite;
+  box-shadow: 0 0 15px rgba(129, 140, 248, 0.1) inset;
+}
+
+.orbit-reverse {
+  width: 240px;
+  height: 240px;
+  margin-top: -120px;
+  margin-left: -120px;
+  animation: spinOrbitReverse 20s linear infinite;
+  transform: rotateX(70deg) rotateY(-20deg);
+}
+
+.core-orbit:not(.orbit-reverse) {
+  transform: rotateX(60deg) rotateY(15deg);
+}
+
+.satellite {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  margin-left: -6px;
+  width: 12px;
+  height: 12px;
+  background: #a5b4fc;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #a5b4fc, 0 0 20px #818cf8;
+}
+
+.satellite-2 {
+  background: #67e8f9;
+  box-shadow: 0 0 10px #67e8f9, 0 0 20px #22d3ee;
+}
+
+@keyframes spinOrbit {
+  0% { transform: rotateX(60deg) rotateY(15deg) rotateZ(0deg); }
+  100% { transform: rotateX(60deg) rotateY(15deg) rotateZ(360deg); }
+}
+
+@keyframes spinOrbitReverse {
+  0% { transform: rotateX(70deg) rotateY(-20deg) rotateZ(360deg); }
+  100% { transform: rotateX(70deg) rotateY(-20deg) rotateZ(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .core-sphere, .core-orbit, .orbit-reverse {
+    animation: none;
+  }
+}

@@ -1,0 +1,87 @@
+.source-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  transition: transform 0.1s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+  scroll-margin-top: 2rem;
+  will-change: transform;
+}
+
+.source-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2), 0 8px 10px -6px rgba(79, 70, 229, 0.1);
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+.source-card.highlighted {
+  animation: highlight-glow 2s ease-out;
+}
+
+@keyframes highlight-glow {
+  0% { 
+    background-color: rgba(99, 102, 241, 0.2); 
+    border-color: #6366f1; 
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+  100% { 
+    background-color: rgba(255, 255, 255, 0.03); 
+    border-color: rgba(255, 255, 255, 0.1); 
+    box-shadow: none;
+  }
+}
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.source-number {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.source-relevance {
+  color: #67e8f9;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.source-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.05rem;
+  color: #f8fafc;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.source-doc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.source-excerpt {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid rgba(129, 140, 248, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .source-card {
+    transition: none;
+    transform: none !important;
+  }
+}

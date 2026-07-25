@@ -1,0 +1,86 @@
+.space-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  background: radial-gradient(circle at bottom, #07091d 0%, #03040a 100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.galaxy-glow {
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(45, 21, 107, 0.15) 0%, transparent 60%);
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: float 20s ease-in-out infinite alternate;
+}
+
+.galaxy-glow-secondary {
+  position: absolute;
+  bottom: 10%;
+  right: 10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(16, 75, 122, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(50px);
+  animation: float 25s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, 30px); }
+}
+
+/* Stars using CSS box-shadow for performance */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+}
+
+/* Generate multiple shadows via JS if desired, but hardcoding a few base shadows works */
+.stars-small {
+  width: 1px;
+  height: 1px;
+  box-shadow: 10vw 20vh #fff, 30vw 10vh #fff, 50vw 50vh #fff, 80vw 20vh #fff, 20vw 80vh #fff, 70vw 60vh #fff, 90vw 90vh #fff, 40vw 90vh #fff, 60vw 15vh #fff, 15vw 40vh #fff;
+  animation: twinkle 4s linear infinite;
+}
+
+.stars-medium {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  box-shadow: 25vw 30vh #fff, 75vw 40vh #fff, 45vw 70vh #fff, 85vw 80vh #fff, 15vw 60vh #fff, 65vw 90vh #fff, 95vw 10vh #fff;
+  animation: twinkle 6s linear infinite;
+  opacity: 0.8;
+}
+
+.stars-large {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  box-shadow: 35vw 45vh #fff, 55vw 25vh #fff, 10vw 95vh #fff, 95vw 50vh #fff, 60vw 85vh #fff;
+  animation: twinkle 8s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: translateY(0); }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; transform: translateY(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars-small, .stars-medium, .stars-large, .galaxy-glow, .galaxy-glow-secondary {
+    animation: none;
+  }
+}
