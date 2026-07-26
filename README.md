@@ -82,7 +82,7 @@ frontend/
 ├── src/
 │   ├── components/
 │   │   ├── Chatbot.jsx           # (UI) Main AI assistant interface
-│   │   └── ui/
+│   │   └── ui/ 
 │   │       ├── AuthScreen.jsx    # (UI) Login/Register view
 │   │       └── SpaceBackground.jsx # (UI) 3D animated background
 │   ├── services/
@@ -92,6 +92,28 @@ frontend/
 │   └── index.css                 # (UI) Global CSS variables and tokens
 ├── package.json                  # (Config) Node dependencies
 └── vite.config.js                # (Config) Vite bundler configuration
+```
+
+## Data Flow
+
+```text
+User Question
+      ↓
+Validate input
+      ↓
+Generate embedding (Sentence Transformer)
+      ↓
+Search ChromaDB
+      ↓
+Retrieve top-k chunks
+      ↓
+Build prompt
+      ↓
+Send request to Gemini
+      ↓
+Gemini generates answer
+      ↓
+Return response to React
 ```
 
 ## Retrieval Pipeline
@@ -157,3 +179,24 @@ pytest tests/ -v
 
 Tests for the LLM service use **mocks** — no real Gemini API calls are made,
 so you can run them without an API key.
+
+The test suite includes **22 meaningful automated tests** covering:
+- Authentication & Session security (password hashing, JWT validation)
+- LLM hallucination prevention (skipping Gemini when context is missing)
+- Source filtering and relevance scoring accuracy
+
+## Assumptions, Limitations, and Future Improvements
+
+### Assumptions
+- The provided knowledge base fits comfortably in local memory/disk, justifying the use of a lightweight local ChromaDB instance over a cloud-hosted vector database.
+- Fictional policies do not change in real-time, allowing for a straightforward one-time indexing step on startup.
+
+### Known Limitations
+- The Markdown document chunker currently splits text by double newlines (paragraphs). It does not have advanced semantic understanding of complex formatting like deeply nested tables or code blocks.
+- The AI assistant lacks conversational memory; each question is treated as a standalone query without context of previous messages in the session.
+
+### What I Would Improve With More Time
+- **Dockerization:** Wrap the frontend and backend in Docker containers using `docker-compose` for a seamless "one-click" startup experience.
+- **Conversational Memory:** Implement chat history tracking in the SQLite database so the LLM can answer follow-up questions effectively.
+- **Production Database:** Migrate the user table from SQLite to a robust PostgreSQL database for better concurrency.
+- **CI/CD:** Add GitHub Actions to automatically run the Pytest suite and linting on every pull request.
