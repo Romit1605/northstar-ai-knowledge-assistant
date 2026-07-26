@@ -52,6 +52,48 @@ This is an AI-powered internal knowledge assistant for the fictional company Nor
    ```
    The application will be available at `http://localhost:5173`.
 
+## Project Structure
+
+```text
+backend/
+├── app/
+│   ├── api/
+│   │   ├── auth_routes.py        # (Auth) Register, login, /me endpoints
+│   │   └── routes.py             # (RAG) Ask, document, and index endpoints
+│   ├── core/
+│   │   ├── config.py             # (Config) Environment variables and settings
+│   │   └── database.py           # (DB) SQLAlchemy SQLite setup
+│   ├── knowledge_base/           # (RAG) Markdown company policies
+│   ├── models/
+│   │   ├── auth_schemas.py       # (Auth) Pydantic schemas for auth
+│   │   ├── schemas.py            # (RAG) Pydantic schemas for questions/answers
+│   │   └── user.py               # (DB) SQLAlchemy database model for Users
+│   ├── services/
+│   │   ├── auth_service.py       # (Auth) Password hashing and JWT generation
+│   │   ├── document_loader.py    # (RAG) Reads and chunks markdown files
+│   │   ├── llm_service.py        # (RAG) Constructs Gemini prompt and calls AI
+│   │   ├── retrieval_service.py  # (RAG) Formats context and filters relevance
+│   │   └── vector_store.py       # (RAG) Embeds text and interacts with ChromaDB
+│   └── main.py                   # (Backend) FastAPI application entry point
+├── requirements.txt              # (Config) Python dependencies
+└── run.py                        # (Backend) Starts the Uvicorn server
+
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── Chatbot.jsx           # (UI) Main AI assistant interface
+│   │   └── ui/
+│   │       ├── AuthScreen.jsx    # (UI) Login/Register view
+│   │       └── SpaceBackground.jsx # (UI) 3D animated background
+│   ├── services/
+│   │   └── api.js                # (Frontend) Axios API client and interceptors
+│   ├── App.jsx                   # (Frontend) Authentication state manager
+│   ├── main.jsx                  # (Frontend) React DOM root entry point
+│   └── index.css                 # (UI) Global CSS variables and tokens
+├── package.json                  # (Config) Node dependencies
+└── vite.config.js                # (Config) Vite bundler configuration
+```
+
 ## Retrieval Pipeline
 
 When a user submits a question, the backend runs a four-step pipeline
